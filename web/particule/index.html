@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fond Interactif</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            overflow: hidden;
+        }
+        #particles-js {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: #1d1d1d; /* Fond sombre comme l'exemple */
+        }
+    </style>
+</head>
+<body>
+<div id="particles-js"></div>
+<script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+<script>
+    /* Configuration des particules */
+    particlesJS("particles-js", {
+        "particles": {
+            "number": {
+                "value": 100,
+                "density": {
+                    "enable": true,
+                    "value_area": 800
+                }
+            },
+            "color": {
+                "value": "#ffffff"
+            },
+            "shape": {
+                "type": "circle",
+                "stroke": {
+                    "width": 0,
+                    "color": "#000000"
+                }
+            },
+            "opacity": {
+                "value": 0.5,
+                "random": false
+            },
+            "size": {
+                "value": 3,
+                "random": true
+            },
+            "line_linked": {
+                "enable": true,
+                "distance": 150,
+                "color": "#ffffff",
+                "opacity": 0.4,
+                "width": 1
+            },
+            "move": {
+                "enable": true,
+                "speed": 6,
+                "direction": "none",
+                "random": false,
+                "straight": false,
+                "out_mode": "out",
+                "attract": {
+                    "enable": false
+                }
+            }
+        },
+        "interactivity": {
+            "detect_on": "canvas",
+            "events": {
+                "onhover": {
+                    "enable": true,
+                    "mode": "repulse"
+                },
+                "onclick": {
+                    "enable": true,
+                    "mode": "push"
+                },
+                "resize": true
+            },
+            "modes": {
+                "repulse": {
+                    "distance": 100,
+                    "duration": 0.4
+                },
+                "push": {
+                    "particles_nb": 4
+                }
+            }
+        },
+        "retina_detect": true
+    });
+</script>
+</body>
+</html>
+<!--
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Effet Machine à Écrire</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background: #1d1d1d;
+            color: white;
+        }
+        #typing-effect {
+            font-size: 2rem;
+            white-space: pre-wrap; /* Pour conserver les sauts de ligne si nécessaire */
+        }
+    </style>
+</head>
+<body>
+<div id="typing-effect"></div>
+
+<script>
+    // Texte à afficher
+    const text = "Bonjour, je suis un développeur web passionné.\nJe crée des sites interactifs et modernes !";
+
+    // Sélection de l'élément HTML
+    const typingEffectElement = document.getElementById("typing-effect");
+
+    // Initialisation des variables
+    let index = 0;
+
+    // Fonction pour afficher le texte caractère par caractère
+    function typeText() {
+        if (index < text.length) {
+            typingEffectElement.textContent += text.charAt(index); // Ajouter un caractère
+            index++;
+            setTimeout(typeText, 50); // Appeler récursivement après 50ms
+        }
+    }
+
+    // Démarrer l'effet
+    typeText();
+</script>
+</body>
+</html>
+
+-->
