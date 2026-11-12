@@ -1,0 +1,243 @@
+import pygame
+from pygame import K_UP, K_DOWN, K_LEFT, K_RIGHT, K_z, K_s, K_q, K_d
+
+from Bonus import bonus_list
+
+
+def get_angle(direction):
+    if direction == "UP":
+        return 0
+    elif direction == "RIGHT":
+        return 90
+    elif direction == "DOWN":
+        return 180
+    else:
+        return 270
+
+def rotate_image(image, diff_angle):
+    # if diff_angle != 0:
+    # print("prec_angle = "+str(prec_angle)+" post_angle = "+str(post_angle)+ " diff_angle = "+str(diff_angle))
+    image = pygame.transform.rotate(image, diff_angle)
+    return image
+
+def get_diff_angle(prec_angle, post_angle):
+    return prec_angle - post_angle
+
+class Snake(pygame.sprite.Sprite):
+    def __init__(self, game):
+        super(Snake, self).__init__()
+        #surface
+        self.game = game
+        self.size = self.game.length_unit
+        # self.surf = pygame.Surface((self.game.length_unit, self.game.length_unit))
+        # self.surf.fill(pygame.Color("black"))
+        # self.rect = self.surf.get_rect()
+
+        self.image = pygame.image.load("snake/icons/snake_head.png")
+        self.image = self.image.convert()
+        self.image = pygame.transform.scale(self.image, (self.game.length_unit, self.game.length_unit))
+        self.image = pygame.transform.rotate(self.image, 270)
+        self.diff_angle = 0
+
+        self.rect = self.image.get_rect()
+
+        self.last_direction = "RIGHT"
+        self.direction = "RIGHT"
+        self.tail_list = []
+        # self.tail_list.append(self)
+
+        #deplacement
+        self.rect.x = (self.game.SCREEN_WIDTH / 2)//25*25 - self.image.get_width() / 2//25*25
+        self.rect.y = (self.game.SCREEN_HEIGHT / 2)//25*25 - self.image.get_height() / 2//25*25
+        self.previous_x = None
+        self.previous_y = None
+
+        self.life = 5
+        self.immunity = 0
+        self.alive = True
+
+
+    class Tail:
+        def __init__(self, snake, game, bigger_tail):
+            super(Snake.Tail, self).__init__()
+            self.snake = snake
+            self.game = game
+            self.bigger_tail = bigger_tail
+            self.size = self.bigger_tail.size
+            self.last_direction = bigger_tail.last_direction
+            self.direction = bigger_tail.direction
+            self.diff_angle = 0
+
+            self.image = pygame.image.load("snake/icons/queue.png")
+            self.image = self.image.convert()
+            self.image = pygame.transform.scale(self.image, (self.size, self.size))
+
+            self.rect = self.image.get_rect()
+
+            x,y = self.get_spawn_position()
+            self.rect.x = self.get_spawn_position()[0]
+            self.rect.y = self.get_spawn_position()[1]
+
+            self.previous_x = None
+            self.previous_y = None
+
+        def update(self):
+            self.previous_x = self.rect.left
+            self.previous_y = self.rect.top
+
+            self.rect.left = self.bigger_tail.previous_x
+            self.rect.top = self.bigger_tail.previous_y
+
+            self.image = rotate_image(self.image, self.bigger_tail.diff_angle)
+            self.diff_angle = self.bigger_tail.diff_angle
+
+        def add_tail(self):
+            new_tail = Snake.Tail(self.snake, self.game,  self)
+            return new_tail
+
+        def __str__(self):
+            return str(f"bigger_tail = {self.bigger_tail} \ttail_self.game.length_unit = {self.game.length_unit} {self.game.length_unit} \tx={self.rect.x} y={self.rect.y}")
+
+        def get_spawn_position(self):
+            match self.bigger_tail.last_direction:
+                case "UP":
+                    x = 0
+                    y =-self.game.length_unit
+                case "DOWN":
+                    x = 0
+                    y = self.game.length_unit
+                case "LEFT":
+                    x = +self.game.length_unit
+                    y = 0
+                case "RIGHT":
+                    x = -self.game.length_unit
+                    y = 0
+            return self.bigger_tail.rect.x+x, self.bigger_tail.rect.y+y
+
+        def fatten(self, width=5):
+            self.size += width
+            self.image = pygame.transform.scale(self.image, (self.size, self.size))
+
+
+    def update(self, pressed_key):
+        self.update_dir_pos(pressed_key)
+        self.update_coll_queue()
+        self.update_coll_walls()
+
+    def update_dir_pos(self, pressed_key):
+        prec_angle = get_angle(self.last_direction)
+        if pressed_key[K_UP] or pressed_key[K_z]:
+            self.last_direction = "UP"
+        if pressed_key[K_DOWN] or pressed_key[K_s]:
+            self.last_direction = "DOWN"
+        if pressed_key[K_LEFT] or pressed_key[K_q]:
+            self.last_direction = "LEFT"
+        if pressed_key[K_RIGHT] or pressed_key[K_d]:
+            self.last_direction = "RIGHT"
+        post_angle = get_angle(self.last_direction)
+        self.diff_angle = get_diff_angle(prec_angle, post_angle)
+        self.image = rotate_image(self.image, self.diff_angle)
+
+    def move(self):
+        if self.game.tick_is_multiple_4():
+            self.previous_x = self.rect.left
+            self.previous_y = self.rect.top
+            match self.last_direction:
+                case "UP":
+                        self.rect.move_ip(0, -self.game.length_unit)
+                case "DOWN":
+                        self.rect.move_ip(0, self.game.length_unit)
+                case "LEFT":
+                        self.rect.move_ip(-self.game.length_unit, 0)
+                case "RIGHT":
+                        self.rect.move_ip(self.game.length_unit, 0)
+
+            self.update_all_tails()
+
+    def update_all_tails(self):
+        for i in range(self.get_nb_tails()):
+            tail = self.get_tail(i)
+            tail.update()
+
+    def add_tail(self):
+        smallest_tail = self.get_smallest_tail()
+        if smallest_tail is None:
+            new_tail = Snake.Tail(self, self.game,  self)
+        else:
+            new_tail = smallest_tail.add_tail()
+        self.tail_list.append(new_tail)
+
+    def get_tails_list(self):
+        return self.tail_list
+
+    def get_tail(self, index):
+        if index >= len(self.tail_list):
+            return None
+        return self.tail_list[index]
+
+    def get_nb_tails(self):
+        return len(self.tail_list)
+
+    def get_smallest_tail(self):
+        if len(self.tail_list) >0:
+            return self.tail_list[len(self.tail_list)-1]
+        else:
+            return None
+
+    def remove_tail(self):
+        if len(self.tail_list)>0:
+            self.tail_list.pop()
+
+    def __str__(self):
+        return str(f"direction={self.last_direction} nb_tails={len(self.tail_list)} alive={self.alive} life={self.life} immunity={self.immunity} x={self.rect.x} y={self.rect.y}")
+
+    def update_coll_queue(self):
+        for tail in range(self.get_nb_tails()):
+            if self.rect.colliderect(self.get_tail(tail)):
+                print("il y  a une collision et c'est pas bien ")
+                self.loose_hp()
+
+    def update_coll_walls(self):
+        if (self.rect.x>=self.game.SCREEN_WIDTH-self.game.length_unit*2 and self.last_direction=="RIGHT") or (self.rect.y>=self.game.SCREEN_HEIGHT-self.game.length_unit*2 and self.last_direction=="DOWN"):
+            self.alive = False
+        if (self.rect.x<self.game.length_unit+24 and self.last_direction=="LEFT")or self.rect.y<self.game.length_unit+24 and (self.last_direction=="UP"):
+            self.alive = False
+
+    def bonus_eaten(self):
+        for bonus in bonus_list:
+            if self.rect.colliderect(bonus.rect):
+                self.game.add_bonus()
+                bonus.apply_effect()
+                bonus_list.remove(bonus)
+                del bonus
+
+    def loose_hp(self):
+        if self.immunity <= 0:
+            self.life = self.life - 1
+            self.immunity = self.immunity + self.game.tick_multiplier
+        if self.life <= 0:
+            self.alive = False
+            return self.alive
+
+    def lose_immunity_by_existing(self):
+        if (self.immunity > 0):
+            self.immunity -=1
+
+    def add_immunity(self):
+        self.immunity += self.game.tick_multiplier*self.game.tick_rate *3
+
+    def is_alive(self):
+        return self.alive
+
+    def add_life(self):
+        self.life += 1
+
+    def mc_donalds(self):
+        for tail in self.tail_list:
+            tail.fatten()
+
+    def check_pos_in_queue(self, pos_x, pos_y):
+        for queue in self.tail_list:
+            if queue.rect.x != pos_x or queue.rect.y != pos_y:
+                return True
+        return False
