@@ -1,11 +1,11 @@
 # Spaghetti
 
-Dépôt regroupant plusieurs projets d'apprentissage, exercices de cours et expérimentations techniques (systèmes embarqués, développement web, algorithmique et Rust).
+Repository grouping various learning projects and technical experiments (embedded systems, web development, algorithms, and Rust).
 
-## Structure du dépôt
+## Repository structure
 
-- **`arduino/`** : Programmes et croquis (`.ino`) pour cartes Arduino et robot mBot (capteurs, LED, moteurs, suivi de ligne).
-- **`biblioRust-main/`** : Projet de gestion de bibliothèque développé en Rust.
-- **`books_crud_django-main/`** : Application web CRUD de gestion de livres développée avec Django (Python).
-- **`unit-management-main/`** : Projet de gestion d'unités / modules pédagogiques.
-- **`Vigenere-cipher-main/`** : Implémentation du chiffrement et déchiffrement de Vigenère.
+- **`arduino/`**: Programs and sketches (`.ino`) for Arduino boards and Makeblock mBot (sensors, LEDs, motors, line following).
+- **`biblioRust-main/`**: Library management project built in Rust.
+- **`books_crud_django-main/`**: CRUD web application for managing books, built with Django (Python).
+- **`unit-management-main/`**: Educational units / modules management project.
+- **`Vigenere-cipher-main/`**: Implementation of Vigenère cipher encryption and decryption.
