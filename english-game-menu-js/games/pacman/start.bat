@@ -1,2 +1,0 @@
-
-python pac-man.py
